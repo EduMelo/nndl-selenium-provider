@@ -28,6 +28,7 @@ jobs:
           java-version: '25'
           distribution: temurin
           server-id: github
+          server-password: REPOSITORY_TOKEN
 
       - name: Install Selenium Server JAR
         run: |
@@ -40,4 +41,4 @@ jobs:
       - name: Publish to GitHub Packages
         run: mvn --batch-mode deploy
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY_TOKEN: ${{ secrets.REPOSITORY_TOKEN }}
