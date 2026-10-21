@@ -1,0 +1,43 @@
+name: Maven Package
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout nndl-core
+        uses: actions/checkout@v4
+        with:
+          repository: EduMelo/nndl-core
+          ref: master
+          path: nndl-core
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: temurin
+          server-id: github
+
+      - name: Install Selenium Server JAR
+        run: |
+          curl -fsSL -o selenium-server-4.21.0.jar https://github.com/SeleniumHQ/selenium/releases/download/selenium-4.21.0/selenium-server-4.21.0.jar
+          mvn install:install-file -Dfile=selenium-server-4.21.0.jar -DgroupId=org.seleniumhq.selenium -DartifactId=selenium-server -Dversion=4.21.0 -Dpackaging=jar
+
+      - name: Install nndl-core
+        run: mvn -B install -f nndl-core/pom.xml -DskipTests
+
+      - name: Publish to GitHub Packages
+        run: mvn --batch-mode deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
